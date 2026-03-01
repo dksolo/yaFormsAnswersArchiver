@@ -1,3 +1,4 @@
+[**🇷🇺 Русский**](README_ru.md)
 # YaForms Answers Archiver
 An app to get the results from YaForms 
 and\or save them to the disk
@@ -41,3 +42,11 @@ Run it like this:
 ```
 node --env-file=.env.some_example app.js
 ```
+
+### Useful links 
+
+Getting Yandex OAuth token: 
+https://yandex.ru/support/forms/en/api-ref/access#about_OAuth 
+
+API reference: 
+https://yandex.ru/support/forms/en/api-ref/
