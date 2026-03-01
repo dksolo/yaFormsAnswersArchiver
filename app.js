@@ -1,14 +1,16 @@
-require('dotenv').config();
-fs = require('fs');
+import 'dotenv/config';
+import fs from 'fs';
+
 
 const FORMS_PUBLIC_API = process.env.FORMS_PUBLIC_API
 const FORMS_OAUTH_TOKEN = process.env.FORMS_OAUTH_TOKEN
-const SURVEY_ID = process.env.SURVEY_ID
+const SURVEY_ID = process.env.SURVEY_ID    
 
-// DotEnv debugging
-// console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
-// console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
-// console.log(`SURVEY_ID: ${SURVEY_ID}`)
+const config = {
+    format : 'csv', // csv or xlsx
+    upload: "default",  // Where to download. default or disk
+    upload_files: false, // Download to disk? false or true
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -44,12 +46,15 @@ async function checkFinished(taskID) {
 
 }
 
-function downloadResult(taskID) {
+function downloadResult(config, taskID) {
+    const {
+    format
+    } = config
     console.log(`Downloading results for ${taskID}`)
     const url = `${FORMS_PUBLIC_API}/surveys/${SURVEY_ID}/answers/export-results?`+ new URLSearchParams({
         task_id: taskID
     }).toString()
-    const filepath = `./output/${taskID}.csv`
+    const filepath = `./output/${taskID}.${format}`
 
     fetch(url, {
         method: 'GET', // Specify the method
@@ -59,7 +64,6 @@ function downloadResult(taskID) {
         }
         })
         .then(async response => {  
-            console.log(response)  
             const responeArray = await response.arrayBuffer()
             fs.writeFileSync(filepath, Buffer.from(responeArray));
             console.log(`Content successfully written to filepath`);
@@ -67,44 +71,60 @@ function downloadResult(taskID) {
         })
         .catch(error => {
             console.error('Error:', error);
-            console.error('Error:', error.errors);
         });
     
 }
 
-function getForms() {
+async function getForms(config) {
+    const {
+    format,
+    upload,
+    upload_files
+    } = config
+
+    if (format != "csv" && format != 'xlsx') {
+        console.error('File format must be either csv or xlsx!')
+        throw new Error('File format must be either csv or xlsx!')
+    }
+    if (upload != "default" && upload != "disk") {
+        console.error('Upload must be eithr default or disk!')
+        throw new Error('Upload must be either default or disk!')
+    }
+    // upload can be either default or disk
     const url = `${FORMS_PUBLIC_API}/surveys/${SURVEY_ID}/answers/export`
-    fetch(url, {
+    return fetch(url, {
         method: 'POST', // Specify the method
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `OAuth ${FORMS_OAUTH_TOKEN}`
         },
         body: JSON.stringify({
-            "format": "csv", 
-            "upload": "disk",
-            "upload_files": true
+            "format": format, 
+            "upload": upload,
+            "upload_files": upload_files
 
         })
         })
         .then(response => response.json())
         .then(async data => {
-            if (data.id) {
-                console.log(data);
-                while (!await checkFinished(data.id)) {
-                    console.log('...')
-                    await sleep(7000)
-                }
-                console.log('Success!')
-                
-                downloadResult(data.id)
-            }
+            return data.id
         })
         .catch(error => {
             console.error('Error:', error);
-            console.error('Error:', error.errors);
         });
 }
 
+async function main(config) {
+    console.log(config)
+    const dataID = await getForms(config)
+    if (dataID) {
+        while (!await checkFinished(dataID)) {
+            console.log('...')
+            await sleep(7000)
+        } 
+        console.log('Success!')
+        downloadResult(config, dataID)
+    }    
+}
 
-getForms()
+main(config)
