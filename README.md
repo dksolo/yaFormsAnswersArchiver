@@ -19,3 +19,7 @@ cp .env.example .env
 ```
 node app.js
 ```
+OR you can provide your OAUTH token and survey id
+```
+node app.js forms_oauth_token survey_id
+```
