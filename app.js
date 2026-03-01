@@ -4,11 +4,12 @@ import fs from 'fs';
 const FORMS_PUBLIC_API = process.env.FORMS_PUBLIC_API
 const FORMS_OAUTH_TOKEN = process.argv[2] ? process.argv[2] : process.env.FORMS_OAUTH_TOKEN
 const SURVEY_ID = process.argv[3] ? process.argv[3] : process.env.SURVEY_ID    
+const SAVE_LOCALLY = process.env.SAVE_LOCALLY
 
 const config = {
-    format : 'csv', // csv or xlsx
+    format : 'xlsx', // csv or xlsx
     upload: "default",  // Where to download. default or disk
-    upload_files: false, // Download to disk? false or true
+    upload_files: false, // Upload to disk? false or true
 }
 
 function sleep(ms) {
@@ -28,8 +29,8 @@ async function checkFinished(taskID) {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data)
-            console.log(data.status)
+            // console.log(data)
+            // console.log(data.status)
             if (data.status != 'ok') {
                 return false
             } else {
@@ -65,7 +66,7 @@ function downloadResult(config, taskID) {
         .then(async response => {  
             const responeArray = await response.arrayBuffer()
             fs.writeFileSync(filepath, Buffer.from(responeArray));
-            console.log(`Content successfully written to filepath`);
+            // console.log(`Content successfully written to filepath`);
 
         })
         .catch(error => {
@@ -124,19 +125,25 @@ async function getForms(config) {
 }
 
 async function main(config) {
-    console.log('\n\nRunning the process with the following vars...\n Config:')
-    console.log(config)
-    console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
-    console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
-    console.log(`SURVEY_ID: ${SURVEY_ID}\n`)
+    console.log('\nStarting...\n')
+    // console.log('\n\nRunning the process with the following vars...\n Config:')
+    // console.log(config)
+    // console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
+    // console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
+    // console.log(`SURVEY_ID: ${SURVEY_ID}\n`)
+    // console.log(`SAVE_LOCALLY: ${SAVE_LOCALLY}\n`)
     const dataID = await getForms(config)
     if (dataID) {
         while (!await checkFinished(dataID)) {
             console.log('...')
             await sleep(7000)
         } 
-        console.log('Success!')
-        downloadResult(config, dataID)
+        console.log('Success. File is ready to be downloaded!')
+        if (SAVE_LOCALLY) {
+            downloadResult(config, dataID)
+            console.log('File is downloaded!')
+        }
+        console.log(`\nJob's done!`)
     }    
 }
 
