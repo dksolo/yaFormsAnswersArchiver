@@ -3,8 +3,8 @@ import fs from 'fs';
 
 
 const FORMS_PUBLIC_API = process.env.FORMS_PUBLIC_API
-const FORMS_OAUTH_TOKEN = process.env.FORMS_OAUTH_TOKEN
-const SURVEY_ID = process.env.SURVEY_ID    
+const FORMS_OAUTH_TOKEN = process.argv[2] ? process.argv[2] : process.env.FORMS_OAUTH_TOKEN
+const SURVEY_ID = process.argv[3] ? process.argv[3] : process.env.SURVEY_ID    
 
 const config = {
     format : 'csv', // csv or xlsx
@@ -105,8 +105,16 @@ async function getForms(config) {
 
         })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`${response.status}. Could not process the response`)
+            }
+            response.json()
+        })
         .then(async data => {
+            if (!data?.id) {
+                throw new Error('Could not get process ID')
+            }
             return data.id
         })
         .catch(error => {
@@ -116,6 +124,10 @@ async function getForms(config) {
 
 async function main(config) {
     console.log(config)
+    console.log('Running the process with the following vars...')
+    console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
+    console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
+    console.log(`SURVEY_ID: ${SURVEY_ID}`)
     const dataID = await getForms(config)
     if (dataID) {
         while (!await checkFinished(dataID)) {
