@@ -1,5 +1,9 @@
 import 'dotenv/config';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import {dirname, join} from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // All configurations are done in .env file
 const FORMS_PUBLIC_API = process.env.FORMS_PUBLIC_API
@@ -49,7 +53,7 @@ function downloadResult(taskID) {
     const url = `${FORMS_PUBLIC_API}/surveys/${SURVEY_ID}/answers/export-results?`+ new URLSearchParams({
         task_id: taskID
     }).toString()
-    const filepath = `./output/${taskID}.${FILE_FORMAT}`
+    const filepath = join(__dirname, `output/${taskID}.${FILE_FORMAT}`)
 
     fetch(url, {
         method: 'GET', // Specify the method
@@ -90,7 +94,7 @@ async function getForms() {
         body: JSON.stringify({
             "format": FILE_FORMAT, 
             "upload": UPLOAD,
-            "upload_files": UPLOAD_FILES
+            "upload_files": UPLOAD_FILES,
 
         })
         })
@@ -98,11 +102,9 @@ async function getForms() {
             if (!response.ok) {
                 throw new Error(`${response.status}. Could not process the response`)
             }
-            console.log(response)
             return response.json()
         })
         .then(data => {
-            console.log(data)
             if (!data?.id) {
                 throw new Error('Could not get process ID')
             }
