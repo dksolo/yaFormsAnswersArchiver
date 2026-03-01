@@ -29,11 +29,6 @@ You can chage the variable in .env file and run it as usual.
 node app.js
 ```
 
-You could also provide your OAUTH token and survey id directly to app:
-```
-node app.js forms_oauth_token survey_id
-```
-
 Another way to use it is to provide extra .env file to node:
 Copy .env.example to something else:
 
