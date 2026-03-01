@@ -123,11 +123,11 @@ async function getForms(config) {
 }
 
 async function main(config) {
-    console.log(config)
-    console.log('Running the process with the following vars...')
-    console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
-    console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
-    console.log(`SURVEY_ID: ${SURVEY_ID}`)
+    // console.log(config)
+    // console.log('Running the process with the following vars...')
+    // console.log(`FORMS_PUBLIC_API: ${FORMS_PUBLIC_API}`)
+    // console.log(`FORMS_OAUTH_TOKEN: ${FORMS_OAUTH_TOKEN}`)
+    // console.log(`SURVEY_ID: ${SURVEY_ID}`)
     const dataID = await getForms(config)
     if (dataID) {
         while (!await checkFinished(dataID)) {
