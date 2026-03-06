@@ -1,7 +1,8 @@
 {
   "name": "yaformsanswersarchiver",
+  "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "An app to get the results from YaForms and save them to the disk",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,9 +11,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^17.3.1"
+    "dotenv": "^17.3.1",
+    "node-cron": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.3.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dksolo/yaFormsAnswersArchiver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dksolo/yaFormsAnswersArchiver/issues"
+  },
+  "homepage": "https://github.com/dksolo/yaFormsAnswersArchiver#readme"
 }
